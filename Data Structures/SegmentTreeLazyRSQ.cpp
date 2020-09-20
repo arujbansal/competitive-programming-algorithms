@@ -2,15 +2,17 @@ struct SegmentTree {
     int n;
     vector<int> a, t, lazy;
 
-    void init(int x, vector<int> y) {
+    void init(int x, vector<int> &y) {
         n = x;
-        a = y;
+        a = move(y);
         t.resize(4 * n);
         lazy.assign(4 * n, 0);
         build(1, 0, n - 1);
     }
 
     int merge(int x, int y) { return x + y; }
+
+    int upd(int x, int y) { return x + y; }
 
     void build(int i, int l, int r) {
         if (l == r) {
@@ -25,10 +27,10 @@ struct SegmentTree {
 
     void push(int i, int l, int r) {
         if (lazy[i] != 0) {
-            t[i] += lazy[i] * (r - l + 1);
+            t[i] = upd(t[i], lazy[i] * (r - l + 1));
             if (l != r) {
-                lazy[lc(i)] += lazy[i];
-                lazy[rc(i)] += lazy[i];
+                lazy[lc(i)] = upd(lazy[rc(i)], lazy[i]);
+                lazy[rc(i)] = upd(lazy[lc(i)], lazy[i]);
             }
             lazy[i] = 0;
         }
@@ -38,7 +40,7 @@ struct SegmentTree {
         push(i, l, r);
         if (l > qr || r < ql) return;
         if (l >= ql && r <= qr) {
-            lazy[i] += val;
+            lazy[i] = upd(lazy[i], val);
             push(i, l, r);
             return;
         }
@@ -60,5 +62,9 @@ struct SegmentTree {
 
     void modify(int l, int r, int val) { modify(1, 0, n - 1, l, r, val); }
 
+    void modify(int pos, int val) { modify(1, 0, n - 1, pos, pos, val); }
+
     int query(int l, int r) { return query(1, 0, n - 1, l, r); }
+
+    int query(int pos) { return query(1, 0, n - 1, pos, pos); }
 };
