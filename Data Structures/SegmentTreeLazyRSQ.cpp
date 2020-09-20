@@ -2,9 +2,9 @@ struct SegmentTree {
     int n;
     vector<int> a, t, lazy;
 
-    void init(int x, vector<int> &y) {
+    void init(int x, vector<int> y) {
         n = x;
-        a = move(y);
+        a = y;
         t.resize(4 * n);
         lazy.assign(4 * n, 0);
         build(1, 0, n - 1);
@@ -27,10 +27,10 @@ struct SegmentTree {
 
     void push(int i, int l, int r) {
         if (lazy[i] != 0) {
-            t[i] = upd(t[i], lazy[i] * (r - l + 1));
+            t[i] = upd(t[i], (lazy[i] * (r - l + 1)));
             if (l != r) {
-                lazy[lc(i)] = upd(lazy[rc(i)], lazy[i]);
-                lazy[rc(i)] = upd(lazy[lc(i)], lazy[i]);
+                lazy[lc(i)] = upd(lazy[lc(i)], lazy[i]);
+                lazy[rc(i)] = upd(lazy[rc(i)], lazy[i]);
             }
             lazy[i] = 0;
         }
