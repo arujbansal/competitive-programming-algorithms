@@ -5,7 +5,7 @@ struct BinLiftLCA {
 
     void init(int x) {
         n = x;
-        k = ceil(log(n));
+        k = ceil(log2(n));
         timer = 0;
         tin.resize(n);
         tout.resize(n);
