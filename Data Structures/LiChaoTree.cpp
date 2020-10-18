@@ -1,11 +1,12 @@
+template<typename T>
 struct LiChaoTree {
 
     struct Line {
-        int slope, yIntercept;
+        T slope, yIntercept;
 
-        Line(int slope, int yIntercept) : slope(slope), yIntercept(yIntercept) {}
+        Line(T slope, T yIntercept) : slope(slope), yIntercept(yIntercept) {}
 
-        int val(int x) {
+        T val(int x) {
             return slope * x + yIntercept;
         }
     };
@@ -26,14 +27,14 @@ struct LiChaoTree {
         else insert(rc(i), mid + 1, r, newLine);
     }
 
-    int query(int i, int l, int r, int x) {
+    T query(int i, int l, int r, T x) {
         if (r - l <= 1) return t[i].val(x);
         int mid = (l + r) >> 1;
         if (x <= mid) return min(t[i].val(x), query(lc(i), l, mid, x));
         else return min(t[i].val(x), query(rc(i), mid + 1, r, x));
     }
 
-    void insert(int slope, int yIntercept) { insert(1, 0, n - 1, Line(slope, yIntercept)); }
+    void insert(T slope, T yIntercept) { insert(1, 0, n - 1, Line(slope, yIntercept)); }
 
-    int query(int x) { return query(1, 0, n - 1, x); }
+    T query(int x) { return query(1, 0, n - 1, x); }
 };
