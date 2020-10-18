@@ -4,6 +4,11 @@ struct LiChaoTree {
     struct Line {
         T slope, yIntercept;
 
+        Line() {
+            slope = 0;
+            yIntercept = INF;
+        }
+
         Line(T slope, T yIntercept) : slope(slope), yIntercept(yIntercept) {}
 
         T val(int x) {
@@ -11,30 +16,50 @@ struct LiChaoTree {
         }
     };
 
+    struct Node {
+        Node *lChild, *rChild;
+        Line line;
+
+        Node() {
+            lChild = NULL;
+            rChild = NULL;
+        }
+
+        T val(int x) { return line.val(x); }
+
+        void create_children() {
+            if (lChild != NULL) return;
+            lChild = new Node();
+            rChild = new Node();
+        }
+    };
+
     int n;
-    vector<Line> t;
+    Node *root;
 
     void init(int n) {
         this->n = n;
-        t.assign(4 * n, Line(0, INF));
+        root = new Node();
     }
 
-    void insert(int i, int l, int r, Line newLine) {
+    void insert(Node *i, int l, int r, Line newLine) {
         int mid = (l + r) >> 1;
-        if (newLine.val(mid) < t[i].val(mid)) swap(newLine, t[i]);
+        if (newLine.val(mid) < i->val(mid)) swap(newLine, i->line);
         if (r - l <= 1) return;
-        if (newLine.val(l) <= t[i].val(l)) insert(lc(i), l, mid, newLine);
-        else insert(rc(i), mid + 1, r, newLine);
+        i->create_children();
+        if (newLine.val(l) <= i->val(l)) insert(i->lChild, l, mid, newLine);
+        else insert(i->rChild, mid + 1, r, newLine);
     }
 
-    T query(int i, int l, int r, T x) {
-        if (r - l <= 1) return t[i].val(x);
+    T query(Node *i, int l, int r, T x) {
+        if (r - l <= 1) return i->val(x);
+        i->create_children();
         int mid = (l + r) >> 1;
-        if (x <= mid) return min(t[i].val(x), query(lc(i), l, mid, x));
-        else return min(t[i].val(x), query(rc(i), mid + 1, r, x));
+        if (x <= mid) return min(i->val(x), query(i->lChild, l, mid, x));
+        else return min(i->val(x), query(i->rChild, mid + 1, r, x));
     }
 
-    void insert(T slope, T yIntercept) { insert(1, 0, n - 1, Line(slope, yIntercept)); }
+    void insert(T slope, T yIntercept) { insert(root, 0, n - 1, Line(slope, yIntercept)); }
 
-    T query(int x) { return query(1, 0, n - 1, x); }
+    T query(int x) { return query(root, 0, n - 1, x); }
 };
