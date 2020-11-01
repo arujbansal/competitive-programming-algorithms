@@ -1,23 +1,38 @@
-struct Sieve {
+struct PrimeSieve {
     int n;
-    vector<bool> prime;
-    vector<int> primes;
+    vb isPrime;
+    vi primes, spf;
 
-    void init(int x) {
-        n = x;
-        prime.assign(n + 1, false);
-        sieve();
+    void init(int mx) {
+        n = mx + 5;
+
+        isPrime.assign(n, true);
+        isPrime[0] = isPrime[1] = false;
+
+        spf.assign(n, 0);
+
+        find_primes();
     }
 
-    void sieve() {
-        int mx = 1e5;
-        prime.assign(mx + 1, true);
-        prime[0] = prime[1] = false;
-        for (int i = 2; i * i <= mx; i++) {
-            if (prime[i]) {
-                for (int j = i * i; j <= mx; j += i) prime[j] = false;
+    void find_primes() {
+        for (int i = 2; i * i <= n; i++) {
+            if (!isPrime[i]) continue;
+            spf[i] = i;
+            for (int j = i * i; j <= n; j += i) {
+                isPrime[j] = false;
+                if (!spf[j]) spf[j] = i;
             }
         }
-        for (int i = 2; i <= n; i++) if (prime[i]) primes.push_back(i);
+
+        for (int i = 0; i < n; i++)
+            if (isPrime[i])
+                primes.pb(i);
+    }
+
+    void dump_factors(int x, vector<int> &factors) {
+        while (x != 1) {
+            factors.pb(spf[x]);
+            x /= spf[x];
+        }
     }
 };
