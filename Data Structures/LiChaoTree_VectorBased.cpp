@@ -50,6 +50,7 @@ struct LiChaoTree {
         T mid = (l + r) >> 1;
         if (newLine.val(mid) < t[i].val(mid)) swap(newLine, t[i].line);
         if (r - l <= 1) return;
+        if (newLine.yIntercept >= INF) return;
         create_children(i);
         if (newLine.val(l) <= t[i].val(l)) insert(t[i].left, l, mid, newLine);
         else insert(t[i].right, mid + 1, r, newLine);
@@ -57,6 +58,7 @@ struct LiChaoTree {
 
     T query(int i, T l, T r, T x) {
         if (r - l <= 1) return t[i].val(x);
+        if (t[i].line.yIntercept >= INF) return INF;
         create_children(i);
         T mid = (l + r) >> 1;
         if (x <= mid) return min(t[i].val(x), query(t[i].left, l, mid, x));
