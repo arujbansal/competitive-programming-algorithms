@@ -19,7 +19,7 @@ struct CHT {
     void insert(int slope, int yIntercept) {
         Line newLine(slope, yIntercept);
 
-        while (sz(dq) > 1 && dq.back().second >= dq.back().first.intersect(newLine))
+        while (!dq.empty() && dq.back().second >= dq.back().first.intersect(newLine))
             dq.pop_back();
 
         if (dq.empty()) {
