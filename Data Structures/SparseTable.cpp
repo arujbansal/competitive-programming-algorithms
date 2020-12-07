@@ -1,4 +1,4 @@
-template<bool isMx>
+template<bool returnMax, bool returnIndex>
 struct SparseTable {
     int n, k;
     vector<int> a;
@@ -15,7 +15,7 @@ struct SparseTable {
     int lg(int x) { return 31 - __builtin_clz(x); }
 
     int merge(int x, int y) {
-        if (isMx) return a[x] > a[y] ? x : y;
+        if (returnMax) return a[x] >= a[y] ? x : y;
         return a[x] < a[y] ? x : y;
     }
 
@@ -29,6 +29,8 @@ struct SparseTable {
 
     int query(int l, int r) {
         int j = lg(r - l + 1);
-        return a[merge(st[l][j], st[r - (1 << j) + 1][j])];
+
+        int idx = merge(st[l][j], st[r - (1 << j) + 1][j]);
+        return (returnIndex ? idx : a[idx]);
     }
 };
