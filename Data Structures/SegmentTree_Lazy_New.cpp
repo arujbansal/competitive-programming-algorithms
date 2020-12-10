@@ -82,7 +82,7 @@ struct SegmentTree {
         return merge(resL, resR);
     }
 
-    void modify(int pos, int val) { modify(1, 0, n - 1, pos, pos, val); }
+    void modify(int pos, T val) { modify(1, 0, n - 1, pos, pos, val); }
 
     void modify(int l, int r, T val) { modify(1, 0, n - 1, l, r, val); }
 
