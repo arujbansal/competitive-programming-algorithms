@@ -1,27 +1,50 @@
 template<typename T>
-struct SegmentTree {
+struct segment_tree {
     int n;
     vector<T> a, t, lazy;
+    T identityElement;
 
-    void init(vector<T> &a) {
+    segment_tree(int n, T val) {
+        this->n = n;
+        identityElement = val;
+        t.assign(4 * n, val);
+        lazy.assign(4 * n, val);
+    }
+
+    segment_tree(vector<T> &a, T val) {
         this->a = a;
-        n = (int) a.size();
-
+        identityElement = val;
+        n = int(a.size());
         t.resize(4 * n);
         lazy.assign(4 * n, 0);
 
         build(1, 0, n - 1);
     }
 
-    void init(int n) {
+    void init(int n, T val) {
         this->n = n;
-        t.assign(4 * n, 0);
-        lazy.assign(4 * n, 0);
+        identityElement = val;
+        t.assign(4 * n, val);
+        lazy.assign(4 * n, val);
     }
 
-    T merge(const T &x, const T &y) { return x + y; }
+    void init(vector<T> &a, T val) {
+        this->a = a;
+        identityElement = val;
+        n = int(a.size());
+        t.resize(4 * n);
+        lazy.assign(4 * n, 0);
 
-    void upd(T &x, const T &y) { x += y; }
+        build(1, 0, n - 1);
+    }
+
+    T merge(const T &x, const T &y) { 
+        return x + y; 
+    }
+
+    void upd(T &x, const T &y) { 
+        x = x + y; 
+    }
 
     void build(int i, int l, int r) {
         if (l == r) {
@@ -70,7 +93,7 @@ struct SegmentTree {
     }
 
     T query(int i, int l, int r, int ql, int qr) {
-        if (l > qr || r < ql) return 0;
+        if (l > qr || r < ql) return identityElement;
         push(i, l, r);
         if (l >= ql && r <= qr) return t[i];
 
