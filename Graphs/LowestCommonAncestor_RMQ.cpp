@@ -1,5 +1,5 @@
 struct LCA {
-    int n, m, k;
+    int n, k;
     vector<vector<int>> adj, sparse_table;
     vector<int> euler, first_occurrence;
     int timer;
@@ -61,7 +61,7 @@ struct LCA {
         sparse_table.resize(k);
 
         for (int i = 0; i < k; i++)
-            sparse_table[i].resize(timer - (1 << i) + 2);
+            sparse_table[i].resize(timer - (1 << i));
 
         for (int j = 0; j < timer; j++)
             sparse_table[0][j] = euler[j];
