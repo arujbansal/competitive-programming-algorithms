@@ -56,7 +56,7 @@ struct li_chao_min {
         else insert(cur->rc, mid + 1, r, line);
     }
 
-    int query(Node* &cur, T l, T r, T x) {
+    T query(Node* &cur, T l, T r, T x) {
         if (!cur) return identity;
 
         T mid = l + (r - l) / 2;
@@ -69,5 +69,5 @@ struct li_chao_min {
 
     void insert(T m, T c) { insert(root, L, R, Line(m, c)); }
 
-    int query(T x) { return query(root, L, R, x); }
+    T query(T x) { return query(root, L, R, x); }
 };
