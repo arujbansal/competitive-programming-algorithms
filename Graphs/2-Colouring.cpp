@@ -58,26 +58,32 @@ struct two_colouring {
         for (int i = 0; i < n; i++)
             if (ufds.connected(i, i + n)) return false;
  
-        construct_answer();
- 
         return true;
     }
- 
-    void construct_answer() {
+    
+    // Construct an answer where we minimise the number of "which" values in each component
+    // which is either 1 or 0
+    void construct_answer(int which) {
         answer.resize(n);
         in_answer.assign(2 * n, 0);
- 
+        vector<int> cnt(2 * n, 0);
+
+        for (int i = 0; i < 2 * n; i++) 
+            cnt[ufds.get(i)] += (i > n) ^ which;
+
         for (int i = 0; i < n; i++) {
             int cur = ufds.get(i), complement = ufds.get(i + n);
- 
-            if (!in_answer[cur] && !in_answer[complement]) {
+
+            if (in_answer[cur] || in_answer[complement])
+                continue;
+
+            if (cnt[cur] < cnt[complement])
                 in_answer[cur] = true;
-                answer[i] = 1;
-            } else if (in_answer[cur]) {
-                answer[i] = 1;
-            } else {
-                answer[i] = 0;
-            }
+            else 
+                in_answer[complement] = true;
         }
+
+        for (int i = 0; i < n; i++)
+            answer[i] = (in_answer[ufds.get(i)] ? 1 : 0);
     }
 };
