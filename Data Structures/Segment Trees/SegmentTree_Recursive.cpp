@@ -5,21 +5,16 @@ struct segment_tree {
     T identity;
     function<T(const T&, const T&)> merge;
 
-    void init(const vector<T> &a, T identity, const function<T(const T&, const T&)> &merge) {
-        n = (int) a.size();
-        tree.resize(4 * n);
+    segment_tree() {}
 
-        this->a = a;
-        this->identity = identity;
-        this->merge = merge;
-
-        build(1, 0, n - 1);
+    segment_tree(int _n, T _identity, const function<T(const T&, const T&)> &_merge) {
+        init(_n, _identity, _merge);
     }
 
-    void init(int n, T identity, const function<T(const T&, const T&)> &merge) {
-        this->n = n;
-        this->identity = identity;
-        this->merge = merge;
+    void init(int _n, T _identity, const function<T(const T&, const T&)> &_merge) {
+        n = _n;
+        identity = _identity;
+        merge = _merge;
 
         tree.assign(4 * n, identity);
     }
@@ -72,6 +67,11 @@ struct segment_tree {
         T resR = query(2 * i + 1, mid + 1, r, ql, qr);
 
         return merge(resL, resR);
+    }
+
+    void build(const vector<T> &_a) {
+        a = _a;
+        build(1, 0, n - 1);
     }
 
     void identity_modify(int pos, T val) { identity_modify(1, 0, n - 1, pos, val); }
