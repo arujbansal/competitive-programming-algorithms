@@ -61,7 +61,7 @@ struct LCA {
         sparse_table.resize(k);
 
         for (int i = 0; i < k; i++)
-            sparse_table[i].resize(timer - (1 << i));
+            sparse_table[i].resize(timer - (1 << i) + 1);
 
         for (int j = 0; j < timer; j++)
             sparse_table[0][j] = euler[j];
