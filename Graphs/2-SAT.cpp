@@ -63,7 +63,7 @@ struct two_sat {
             if (!vis[i]) dfs(i);
 
         fill(vis.begin(), vis.end(), false);
-        reverse(all(topological_order));
+        reverse(topological_order.begin(), topological_order.end());
 
         int id = 0;
         for (const auto &v : topological_order)
