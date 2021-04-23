@@ -1,128 +1,79 @@
-// https://github.com/atcoder/ac-library/blob/master/atcoder/internal_csr.hpp
-// https://github.com/atcoder/ac-library/blob/master/atcoder/internal_scc.hpp
-// https://github.com/atcoder/ac-library/blob/master/atcoder/twosat.hpp
-namespace internal {
-
-template <class E> struct csr {
-    std::vector<int> start;
-    std::vector<E> elist;
-    explicit csr(int n, const std::vector<std::pair<int, E>>& edges)
-        : start(n + 1), elist(edges.size()) {
-        for (auto e : edges) {
-            start[e.first + 1]++;
-        }
-        for (int i = 1; i <= n; i++) {
-            start[i] += start[i - 1];
-        }
-        auto counter = start;
-        for (auto e : edges) {
-            elist[counter[e.first]++] = e.second;
-        }
-    }
-};
-
-// Reference:
-// R. Tarjan,
-// Depth-First Search and Linear Graph Algorithms
-struct scc_graph {
-  public:
-    explicit scc_graph(int n) : _n(n) {}
-
-    int num_vertices() { return _n; }
-
-    void add_edge(int from, int to) { edges.push_back({from, {to}}); }
-
-    // @return pair of (# of scc, scc id)
-    std::pair<int, std::vector<int>> scc_ids() {
-        auto g = csr<edge>(_n, edges);
-        int now_ord = 0, group_num = 0;
-        std::vector<int> visited, low(_n), ord(_n, -1), ids(_n);
-        visited.reserve(_n);
-        auto dfs = [&](auto self, int v) -> void {
-            low[v] = ord[v] = now_ord++;
-            visited.push_back(v);
-            for (int i = g.start[v]; i < g.start[v + 1]; i++) {
-                auto to = g.elist[i].to;
-                if (ord[to] == -1) {
-                    self(self, to);
-                    low[v] = std::min(low[v], low[to]);
-                } else {
-                    low[v] = std::min(low[v], ord[to]);
-                }
-            }
-            if (low[v] == ord[v]) {
-                while (true) {
-                    int u = visited.back();
-                    visited.pop_back();
-                    ord[u] = _n;
-                    ids[u] = group_num;
-                    if (u == v) break;
-                }
-                group_num++;
-            }
-        };
-        for (int i = 0; i < _n; i++) {
-            if (ord[i] == -1) dfs(dfs, i);
-        }
-        for (auto& x : ids) {
-            x = group_num - 1 - x;
-        }
-        return {group_num, ids};
-    }
-
-    std::vector<std::vector<int>> scc() {
-        auto ids = scc_ids();
-        int group_num = ids.first;
-        std::vector<int> counts(group_num);
-        for (auto x : ids.second) counts[x]++;
-        std::vector<std::vector<int>> groups(ids.first);
-        for (int i = 0; i < group_num; i++) {
-            groups[i].reserve(counts[i]);
-        }
-        for (int i = 0; i < _n; i++) {
-            groups[ids.second[i]].push_back(i);
-        }
-        return groups;
-    }
-
-  private:
-    int _n;
-    struct edge {
-        int to;
-    };
-    std::vector<std::pair<int, edge>> edges;
-};
-
-}  // namespace internal
-
-// Reference:
-// B. Aspvall, M. Plass, and R. Tarjan,
-// A Linear-Time Algorithm for Testing the Truth of Certain Quantified Boolean
-// Formulas
 struct two_sat {
-  public:
-    two_sat() : _n(0), scc(0) {}
-    explicit two_sat(int n) : _n(n), _answer(n), scc(2 * n) {}
+    int n;
+    vector<vector<int>> g, gr;
+    vector<int> comp, topological_order, answer;
+    vector<bool> vis;
 
-    // (f or g) => At least one of them has to be true
-    void add_clause(int i, bool f, int j, bool g) {
-        assert(0 <= i && i < _n);
-        assert(0 <= j && j < _n);
-        scc.add_edge(2 * i + (f ? 0 : 1), 2 * j + (g ? 1 : 0));
-        scc.add_edge(2 * j + (g ? 0 : 1), 2 * i + (f ? 1 : 0));
+    two_sat() {}
+
+    two_sat(int _n) { init(_n); }
+
+    void init(int _n) {
+        n = _n;
+        g.assign(2 * n, vector<int>());
+        gr.assign(2 * n, vector<int>());
+        comp.resize(2 * n);
+        vis.resize(2 * n);
+        answer.resize(2 * n);
     }
+
+    void add_edge(int u, int v) {
+        g[u].push_back(v);
+        gr[v].push_back(u);
+    }
+
+    // At least one of them is true
+    void add_clause_or(int i, bool f, int j, bool g) {
+        add_edge(i + (f ? n : 0), j + (g ? 0 : n));
+        add_edge(j + (g ? n : 0), i + (f ? 0 : n));
+    }
+
+    // Only of of them is true
+    void add_clause_xor(int i, bool f, int j, bool g) {
+        add_clause_or(i, f, j, g);
+        add_clause_or(i, !f, j, !g);
+    }
+
+    // Both of them have the same value
+    void add_clause_and(int i, bool f, int j, bool g) {
+        add_clause_xor(i, !f, j, g);
+    }
+
+    void dfs(int u) {
+        vis[u] = true;
+
+        for (const auto &v : g[u])
+            if (!vis[v]) dfs(v);
+
+        topological_order.push_back(u);
+    }
+
+    void scc(int u, int id) {
+        vis[u] = true;
+        comp[u] = id;
+
+        for (const auto &v : gr[u])
+            if (!vis[v]) scc(v, id);
+    }
+
     bool satisfiable() {
-        auto id = scc.scc_ids().second;
-        for (int i = 0; i < _n; i++) {
-            if (id[2 * i] == id[2 * i + 1]) return false;
-            _answer[i] = id[2 * i] < id[2 * i + 1];
+        fill(vis.begin(), vis.end(), false);
+
+        for (int i = 0; i < 2 * n; i++)
+            if (!vis[i]) dfs(i);
+
+        fill(vis.begin(), vis.end(), false);
+        reverse(all(topological_order));
+
+        int id = 0;
+        for (const auto &v : topological_order)
+            if (!vis[v]) scc(v, id++);
+
+        for (int i = 0; i < n; i++) {
+            if (comp[i] == comp[i + n]) return false;
+            answer[i] = (comp[i] > comp[i + n] ? 1 : 0);
         }
+
         return true;
     }
-    std::vector<bool> answer() { return _answer; }
-
-  private:
-    int _n;
-    std::vector<bool> _answer;
-    internal::scc_graph scc;
 };
