@@ -28,7 +28,7 @@ struct two_sat {
         add_edge(j + (g ? n : 0), i + (f ? 0 : n));
     }
 
-    // Only of of them is true
+    // Only one of them is true
     void add_clause_xor(int i, bool f, int j, bool g) {
         add_clause_or(i, f, j, g);
         add_clause_or(i, !f, j, !g);
