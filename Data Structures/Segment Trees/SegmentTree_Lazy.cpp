@@ -53,13 +53,11 @@ struct segment_tree : public Modifier {
     void propagate(int i, int l, int r) {
         if (lazy[i] == identity) return;
 
-        T segment_change = Modifier::range_each ? (r - l + 1) : 1;
-
-        tree[i] = Modifier::update(tree[i], lazy[i] * segment_change);
+        tree[i] = Modifier::update(tree[i], lazy[i] * (Modifier::range_each ? (r - l + 1) : 1));
 
         if (l != r) {
-            lazy[2 * i] = Modifier::update(lazy[2 * i], lazy[i] * segment_change);
-            lazy[2 * i + 1] = Modifier::update(lazy[2 * i + 1], lazy[i] * segment_change);
+            lazy[2 * i] = Modifier::update(lazy[2 * i], lazy[i]);
+            lazy[2 * i + 1] = Modifier::update(lazy[2 * i + 1], lazy[i]);
         }
 
         lazy[i] = identity;
@@ -97,3 +95,14 @@ struct segment_tree : public Modifier {
 
     T query(int pos) { return query(1, 0, n - 1, pos, pos); }
 };
+
+// struct RARM {
+//     using T = int;
+
+//     const T identity = numeric_limits<T>::min();
+//     bool range_each = false;
+
+//     T merge(const T &x, const T &y) { return max(x, y); }
+
+//     T update(const T &x, const T &y) { return x + y; }
+// };
