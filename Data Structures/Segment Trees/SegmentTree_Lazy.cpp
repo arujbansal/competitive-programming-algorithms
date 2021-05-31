@@ -3,17 +3,19 @@ struct segment_tree : public Modifier {
     /*
         Modifier Requires:
         1. typename T : Data type used throughout the tree.
-        2. T identity : Return element/base value.
-        3. bool range_each : tree[i] * range length?
-        4. T merge : Merging two segment tree nodes.
-        5. T update : Process for updating nodes.
+        2. T identity_merge : Return element.
+        3. T identity_update : Lazy base value
+        4. bool range_each : tree[i] * range length?
+        5. T merge : Merging two segment tree nodes.
+        6. T update : Process for updating nodes.
     */
 
     using T = typename Modifier::T;
 
     int n;
     vector<T> a, tree, lazy;
-    T identity = Modifier::identity;
+    T identity_merge = Modifier::identity_merge;
+    T identity_update = Modifier::identity_update;
 
     segment_tree(int _n = 0) { init(_n); }
 
@@ -21,8 +23,8 @@ struct segment_tree : public Modifier {
 
     void init(int _n) {
         n = _n;
-        tree.assign(4 * n, identity);
-        lazy.assign(4 * n, identity);
+        tree.assign(4 * n, identity_merge);
+        lazy.assign(4 * n, identity_update);
     }
 
     void init(int _n, const vector<T> &_a) {
@@ -35,7 +37,7 @@ struct segment_tree : public Modifier {
     }
 
     void build(int i, int l, int r) {
-        lazy[i] = identity;
+        lazy[i] = identity_update;
 
         if (l == r) {
             tree[i] = a[l];
@@ -51,7 +53,7 @@ struct segment_tree : public Modifier {
     }
 
     void propagate(int i, int l, int r) {
-        if (lazy[i] == identity) return;
+        if (lazy[i] == identity_update) return;
 
         tree[i] = Modifier::update(tree[i], lazy[i] * (Modifier::range_each ? (r - l + 1) : 1));
 
@@ -60,7 +62,7 @@ struct segment_tree : public Modifier {
             lazy[2 * i + 1] = Modifier::update(lazy[2 * i + 1], lazy[i]);
         }
 
-        lazy[i] = identity;
+        lazy[i] = identity_update;
     }
 
     void modify(int i, int l, int r, int ql, int qr, T val) {
@@ -82,7 +84,7 @@ struct segment_tree : public Modifier {
 
     T query(int i, int l, int r, int ql, int qr) {
         propagate(i, l, r);
-        if (l > qr || r < ql) return identity;
+        if (l > qr || r < ql) return identity_merge;
         if (l >= ql && r <= qr) return tree[i];
 
         int mid = (l + r) / 2;
@@ -97,12 +99,17 @@ struct segment_tree : public Modifier {
 };
 
 // struct RARM {
-//     using T = int;
+//     using T = long long;
 
-//     const T identity = numeric_limits<T>::min();
-//     bool range_each = false;
+//     const T identity_merge = numeric_limits<T>::max();
+//     const T identity_update = 0;
+//     bool range_each = true;
 
-//     T merge(const T &x, const T &y) { return max(x, y); }
+//     T merge(const T &x, const T &y) {
+//         return min(x, y);
+//     };
 
-//     T update(const T &x, const T &y) { return x + y; }
+//     T update(const T &x, const T &y) {
+//         return x + y;
+//     };
 // };
