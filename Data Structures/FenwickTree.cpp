@@ -3,7 +3,7 @@ struct fenwick_tree {
     int n;
     vector<T> tree;
 
-    fenwick_tree(int _n) { init(_n); }
+    fenwick_tree(int _n = 0) { init(_n); }
 
     void init(int _n) {
         n = _n;
