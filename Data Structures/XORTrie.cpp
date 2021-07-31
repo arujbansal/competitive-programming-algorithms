@@ -35,7 +35,7 @@ struct XORTrie {
         for (int bit = bits; bit >= 0; bit--) {
             create_children(idx);
 
-            int visit = (x & (1 << bit)) > 0;
+            int visit = (x & (1ll << bit)) > 0;
 
             idx = t[idx].child[visit];
             t[idx].cnt++;
@@ -48,7 +48,7 @@ struct XORTrie {
         for (int bit = bits; bit >= 0; bit--) {
             create_children(idx);
 
-            int visit = (x & (1 << bit)) > 0;
+            int visit = (x & (1ll << bit)) > 0;
 
             if (t[t[idx].child[visit]].cnt > 0)
                 idx = t[idx].child[visit];
@@ -64,12 +64,12 @@ struct XORTrie {
         int res = 0;
 
         for (int bit = bits; bit >= 0; bit--) {
-            int visit = ((x & (1 << bit)) > 0) ^ 1;
+            int visit = ((x & (1ll << bit)) > 0) ^ 1;
 
             create_children(idx);
 
             if (t[t[idx].child[visit]].cnt > 0) {
-                res |= (1 << bit);
+                res |= (1ll << bit);
                 idx = t[idx].child[visit];
             } else idx = t[idx].child[visit ^ 1];
         }
